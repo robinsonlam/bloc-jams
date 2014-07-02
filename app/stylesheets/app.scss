@@ -19,7 +19,7 @@
   }
 
   .player-header-nav {
-   background-color: rgba(44, 18, 49, .9); /* medium-purple: #7B46A3 - 123, 70, 163 */ #2c1231 Dark-purple 44, 18, 49
+   background-color: rgba(44, 18, 49, .9); /* medium-purple: #7B46A3 - 123, 70, 163  #2c1231 Dark-purple 44, 18, 49 */
   }
 
   .hero-content {
@@ -37,12 +37,12 @@
     padding: 100px 0;
   }
  
- /* .selling-points .point {
-    width: 30%;
+  .selling-points .point {
+    width: 32%;
     float: left;
-    padding: 0 1.5%;
+    padding: 0 0.5%;
     text-align: center;
-  } */
+  } 
  
   .selling-points .point h5 {
     font-size: 24px;
@@ -55,8 +55,10 @@
   .selling-points .point p {
     font-size: 14px;
   }
+
+
 /*============================
-/* Album Stuff */
+ Album Stuff 
 ============================*/
 
  .album-header-container {
@@ -64,17 +66,17 @@
    margin-bottom: 40px;
  }
  
- // This styles the right side of our Album Header
+ /* This styles the right side of our Album Header */
  .album-header-information {
-   // Pushes the album information down and makes sure there's sufficient space at the bottom of the page
+   /* Pushes the album information down and makes sure there's sufficient space at the bottom of the page */
    margin-top: 45px;
    margin-bottom: 20px;
  }
  
  .album-header-information h3, .album-header-information h4, .album-header-information h5 {
-   // Modifying the line height allows us to increase the spacing above and
-   // below the content. Another way of achieving the same effect would be to
-   // set a margin-top and margin-bottom for each of these classes
+   /* Modifying the line height allows us to increase the spacing above and 
+    below the content. Another way of achieving the same effect would be to
+    set a margin-top and margin-bottom for each of these classes */
    line-height: 150%;
  }
  
@@ -93,25 +95,25 @@
    font-weight: 500;
  }
  
- // This styles our Song Listing
+ /* This styles our Song Listing */
  .table.album-song-listing {
-   // Override the font for the entire table.
+   /* Override the font for the entire table. */
    font-weight: 300;
  }
  
-   // Override the defaults that Bootstrap sets.
+   /* Override the defaults that Bootstrap sets. */
  .table.album-song-listing  td {
    padding: 20px;
    border-top: 1px solid rgba(255, 255, 255, .4);
  }
  
- // This styles our Song Listing
+ /* This styles our Song Listing */
  .table.album-song-listing {
-   // Override the font for the entire table.
+   /* Override the font for the entire table. */
    font-weight: 300;
  }
  
-   // Override the defaults that Bootstrap sets.
+   /* Override the defaults that Bootstrap sets. */
  .table.album-song-listing  td {
    padding: 20px;
    border-top: 1px solid rgba(255, 255, 255, .4);
