@@ -331,7 +331,50 @@ if (document.URL.match(/\/album.html/)) {
  //require('./collection');
  //require('./profile');
 
- angular.module('BlocJams', []).controller('Landing.controller', ['$scope',
+ blocJams = angular.module('BlocJams', ['ui.router']);
+
+/******************************************************
+                        STATES
+******************************************************/
+
+ blocJams.config(['$stateProvider', '$locationProvider',
+     function($stateProvider, $locationProvider) {
+         $locationProvider.html5Mode(true);
+
+/******************************************************
+ Landing Page 
+******************************************************/
+
+         $stateProvider.state('landing', {
+             url: '/',
+             controller: 'Landing.controller',
+             templateUrl: '/templates/landing.html'
+         });
+
+/******************************************************
+ Song Page 
+******************************************************/         
+
+         $stateProvider.state('song', {
+             url: '/song',
+             controller: 'Song.controller',
+             templateUrl: '/templates/song.html'
+         });
+
+     }
+ ]);
+
+
+
+/******************************************************
+                     CONTROLLERS
+******************************************************/
+
+/******************************************************
+ Landing Page 
+******************************************************/
+
+ blocJams.controller('Landing.controller', ['$scope',
      function($scope) {
 
          $scope.titleText = "Bloc Jams, ver. Rob - Click here to shuffle album";
@@ -362,9 +405,25 @@ if (document.URL.match(/\/album.html/)) {
          $scope.subTextClicked = function() {
              $scope.subText += '!';
          };
+     }
+ ]);
+
+/******************************************************
+ Song Page 
+******************************************************/  
+
+ blocJams.controller('Song.controller', ['$scope',
+     function($scope) {
+
+        $scope.subText = "Song Template";
+
+        $scope.changeToNo = function() {
+            $scope.subText = "It CHANGED!! OH MY GOSH!";
+        };
 
      }
  ]);
+
 });
 
 ;require.register("scripts/collection", function(exports, require, module) {
