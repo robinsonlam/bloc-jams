@@ -403,6 +403,16 @@ if (document.URL.match(/\/album.html/)) {
          });
 
 /******************************************************
+ Album Page 
+******************************************************/
+
+        $stateProvider.state('album', {
+            url: '/album',
+            controller: 'Album.controller',
+            templateUrl: '/templates/album.html'
+        });
+
+/******************************************************
                         STATES
 ******************************************************/
 
@@ -451,7 +461,7 @@ if (document.URL.match(/\/album.html/)) {
      }
  ]);
 
- /******************************************************
+/******************************************************
  Song Page 
 ******************************************************/
 
@@ -467,7 +477,7 @@ if (document.URL.match(/\/album.html/)) {
      }
  ]);
 
- /******************************************************
+/******************************************************
  Collection Page
 ******************************************************/
 
@@ -480,6 +490,35 @@ if (document.URL.match(/\/album.html/)) {
          }
      }
  ]);
+
+/******************************************************
+ Album Page
+******************************************************/
+
+blocJams.controller('Album.controller', ['$scope',
+    function($scope){
+          $scope.album = angular.copy(albumPicasso);
+             var hoveredSong = null;
+   var playingSong = null;
+ 
+   $scope.onHoverSong = function(song) {
+     hoveredSong = song;
+   };
+ 
+   $scope.offHoverSong = function(song) {
+     hoveredSong = null;
+   };
+
+      $scope.getSongState = function(song) {
+     if (song === playingSong) {
+       return 'playing';
+     }
+     else if (song === hoveredSong) {
+       return 'hovered';
+     }
+     return 'default';
+   };
+    }]);
 });
 
 ;require.register("scripts/collection", function(exports, require, module) {
