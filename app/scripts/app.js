@@ -49,7 +49,12 @@
          $stateProvider.state('landing', {
              url: '/',
              controller: 'Landing.controller',
-             templateUrl: '/templates/landing.html'
+
+             views: {
+            'landing': {controller: 'Landing.controller', templateUrl: '/templates/landing.html'},
+            'playerBar': {templateUrl: '/templates/player_bar.html'}
+            }
+
          });
 
 /******************************************************
