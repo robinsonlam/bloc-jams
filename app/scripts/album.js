@@ -130,7 +130,7 @@ var createSongRow = function(songNumber, songName, songLength) {
     };
 
     var clickHandler = function(event) {
-        songNUmber = $(this).data('song-number');
+        songNumber = $(this).data('song-number');
         if (currentlyPlayingSong !== null) { //if any song is playing
             currentlyPlayingCell = $('.song-number[data-song-number="' + currentlyPlayingSong + '"]');
             currentlyPlayingCell.html(currentlyPlayingSong);

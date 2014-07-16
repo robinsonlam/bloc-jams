@@ -223,7 +223,7 @@ var createSongRow = function(songNumber, songName, songLength) {
     };
 
     var clickHandler = function(event) {
-        songNUmber = $(this).data('song-number');
+        songNumber = $(this).data('song-number');
         if (currentlyPlayingSong !== null) { //if any song is playing
             currentlyPlayingCell = $('.song-number[data-song-number="' + currentlyPlayingSong + '"]');
             currentlyPlayingCell.html(currentlyPlayingSong);
@@ -370,22 +370,17 @@ if (document.URL.match(/\/album.html/)) {
      function($stateProvider, $locationProvider) {
          $locationProvider.html5Mode(true);
 
-/******************************************************
+         /******************************************************
  Landing Page 
 ******************************************************/
 
          $stateProvider.state('landing', {
              url: '/',
              controller: 'Landing.controller',
-
-             views: {
-            'landing': {controller: 'Landing.controller', templateUrl: '/templates/landing.html'},
-            'playerBar': {templateUrl: '/templates/player_bar.html'}
-            }
-
+             templateUrl: '/templates/landing.html'
          });
 
-/******************************************************
+         /******************************************************
  Song Page 
 ******************************************************/
 
@@ -397,7 +392,7 @@ if (document.URL.match(/\/album.html/)) {
 
 
 
-/******************************************************
+         /******************************************************
  Collection Page 
 ******************************************************/
 
@@ -407,17 +402,26 @@ if (document.URL.match(/\/album.html/)) {
              templateUrl: '/templates/collection.html'
          });
 
-/******************************************************
+         /******************************************************
  Album Page 
 ******************************************************/
 
-        $stateProvider.state('album', {
-            url: '/album',
-            controller: 'Album.controller',
-            templateUrl: '/templates/album.html'
-        });
+         $stateProvider.state('album', {
+             url: '/album',
+             controller: 'Album.controller',
+             templateUrl: '/templates/album.html'
+         });
 
-/******************************************************
+         /******************************************************
+ Album Page 
+******************************************************/
+
+         $stateProvider.state('playerBar', {
+             controller: 'playerBar.controller',
+             templateUrl: '/templates/player_bar.html'
+         });
+
+         /******************************************************
                         STATES
 ******************************************************/
 
@@ -466,7 +470,7 @@ if (document.URL.match(/\/album.html/)) {
      }
  ]);
 
-/******************************************************
+ /******************************************************
  Song Page 
 ******************************************************/
 
@@ -482,7 +486,7 @@ if (document.URL.match(/\/album.html/)) {
      }
  ]);
 
-/******************************************************
+ /******************************************************
  Collection Page
 ******************************************************/
 
@@ -496,34 +500,74 @@ if (document.URL.match(/\/album.html/)) {
      }
  ]);
 
-/******************************************************
+ /******************************************************
  Album Page
 ******************************************************/
 
-blocJams.controller('Album.controller', ['$scope',
-    function($scope){
-          $scope.album = angular.copy(albumPicasso);
-             var hoveredSong = null;
-   var playingSong = null;
- 
-   $scope.onHoverSong = function(song) {
-     hoveredSong = song;
-   };
- 
-   $scope.offHoverSong = function(song) {
-     hoveredSong = null;
-   };
+ blocJams.controller('Album.controller', ['$scope', 'SongPlayer',
+     function($scope, SongPlayer) {
+         $scope.album = angular.copy(albumPicasso);
+         var hoveredSong = null;
 
-      $scope.getSongState = function(song) {
-     if (song === playingSong) {
-       return 'playing';
+
+         $scope.onHoverSong = function(song) {
+             hoveredSong = song;
+         };
+
+         $scope.offHoverSong = function(song) {
+             hoveredSong = null;
+         };
+
+         $scope.getSongState = function(song) {
+             if (song === SongPlayer.currentSong && SongPlayer.playing) {
+                 return 'playing';
+             } else if (song === hoveredSong) {
+                 return 'hovered';
+             }
+             return 'default';
+         };
+
+
+         $scope.playSong = function(song) {
+            SongPlayer.setSong($scope.album, song);
+            SongPlayer.play();
+         };
+
+         $scope.pauseSong = function(song) {
+            SongPlayer.pause();
+         };
+
      }
-     else if (song === hoveredSong) {
-       return 'hovered';
+ ]);
+
+ /******************************************************
+ Song Player 
+******************************************************/
+
+ blocJams.controller('PlayerBar.controller', ['$scope', 'SongPlayer',
+     function($scope, SongPlayer) {
+         $scope.songPlayer = SongPlayer;
      }
-     return 'default';
-   };
-    }]);
+ ]);
+
+ blocJams.service('SongPlayer', function() {
+     return {
+         currentSong: null,
+         currentAlbum: null,
+         playing: false,
+
+         play: function() {
+             this.playing = true;
+         },
+         pause: function() {
+             this.playing = false;
+         },
+         setSong: function(album, song) {
+             this.currentAlbum = album;
+             this.currentSong = song;
+         }
+     };
+ });
 });
 
 ;require.register("scripts/collection", function(exports, require, module) {
