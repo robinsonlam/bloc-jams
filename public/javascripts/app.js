@@ -341,24 +341,26 @@ if (document.URL.match(/\/album.html/)) {
 
      songs: [{
          name: 'Blue',
-         length: '4:26'
+         length: '4:26',
+         audioUrl: '/music/placeholders/blue'
      }, {
          name: 'Green',
-         length: '3:14'
+         length: '3:14',
+         audioUrl: '/music/placeholders/green'
      }, {
          name: 'Red',
-         length: '5:01'
+         length: '5:01',
+         audioUrl: '/music/placeholders/red'
      }, {
          name: 'Pink',
-         length: '3:21'
+         length: '3:21',
+         audioUrl: '/music/placeholders/pink'
      }, {
          name: 'Magenta',
-         length: '2:15'
+         length: '2:15',
+         audioUrl: '/music/placeholders/magenta'
      }]
  };
-
-
-
 
  blocJams = angular.module('BlocJams', ['ui.router']);
 
@@ -489,13 +491,16 @@ if (document.URL.match(/\/album.html/)) {
  /******************************************************
  Collection Page
 ******************************************************/
-
- blocJams.controller('Collection.controller', ['$scope',
-     function($scope) {
+ blocJams.controller('Collection.controller', ['$scope', 'SongPlayer',
+     function($scope, SongPlayer) {
          $scope.hideOverlay = true;
          $scope.albums = [];
          for (var i = 0; i < 33; i++) {
              $scope.albums.push(angular.copy(albumPicasso));
+         }
+
+         $scope.playAlbum = function(album) {
+             SongPlayer.setSong(album, album.songs[0]);
          }
      }
  ]);
@@ -508,7 +513,6 @@ if (document.URL.match(/\/album.html/)) {
      function($scope, SongPlayer) {
          $scope.album = angular.copy(albumPicasso);
          var hoveredSong = null;
-
 
          $scope.onHoverSong = function(song) {
              hoveredSong = song;
@@ -527,10 +531,8 @@ if (document.URL.match(/\/album.html/)) {
              return 'default';
          };
 
-
          $scope.playSong = function(song) {
              SongPlayer.setSong($scope.album, song);
-             SongPlayer.play();
          };
 
          $scope.pauseSong = function(song) {
@@ -552,6 +554,8 @@ if (document.URL.match(/\/album.html/)) {
 
  blocJams.service('SongPlayer', function() {
 
+     var currentSoundFile = null;
+
      var trackIndex = function(album, song) {
          return album.songs.indexOf(song);
      };
@@ -564,13 +568,26 @@ if (document.URL.match(/\/album.html/)) {
 
          play: function() {
              this.playing = true;
+             currentSoundFile.play();
          },
          pause: function() {
              this.playing = false;
+             currentSoundFile.pause();
          },
          setSong: function(album, song) {
+
+             if (currentSoundFile) {
+                 currentSoundFile.stop();
+             }
              this.currentAlbum = album;
              this.currentSong = song;
+             currentSoundFile = new buzz.sound(song.audioUrl, {
+                 formats: ["mp3"],
+                 preload: true
+             });
+
+             this.play();
+
          },
          next: function() {
              var currentTrackIndex = trackIndex(this.currentAlbum, this.currentSong);
@@ -578,7 +595,8 @@ if (document.URL.match(/\/album.html/)) {
              if (currentTrackIndex >= this.currentAlbum.songs.length) {
                  currentTrackIndex = 0;
              }
-             this.currentSong = this.currentAlbum.songs[currentTrackIndex];
+             var song = this.currentAlbum.songs[currentTrackIndex];
+             this.setSong(this.currentAlbum, song);
          },
          previous: function() {
              var currentTrackIndex = trackIndex(this.currentAlbum, this.currentSong);
@@ -587,7 +605,8 @@ if (document.URL.match(/\/album.html/)) {
                  currentTrackIndex = this.currentAlbum.songs.length - 1;
              }
 
-             this.currentSong = this.currentAlbum.songs[currentTrackIndex];
+             var song = this.currentAlbum.songs[currentTrackIndex];
+             this.setSong(this.currentAlbum, song);
          }
      };
  });
@@ -596,16 +615,14 @@ if (document.URL.match(/\/album.html/)) {
 ;require.register("scripts/collection", function(exports, require, module) {
 var buildAlbumThumbnail = function() {
     var template =
-        '<div class="collection-album-container col-md-2">' + '  <div class="collection-album-image-container">' + '    <img src="/images/album-placeholder.png"/>' + '  </div>' + '  <div class="caption album-collection-info">' + '    <p>' + '      <a class="album-name" href="/album.html"> Album Name </a>' + '      <br/>' + '      <a href="/album.html"> Artist name </a>' + '      <br/>' + '      X songs' + '      <br/>' + '		X:XX Total Length' + '      <br/>' + '    </p>' + '  </div>' + '</div>';
+        '<div class="collection-album-container col-md-2">' + '  <div class="collection-album-image-container">' + '    <img src="/images/album-placeholder.png"/>' + '  </div>' + '  <div class="caption album-collection-info">' + '    <p>' + '      <a class="album-name" href="/album.html"> Album Name </a>' + '      <br/>' + '      <a href="/album.html"> Artist name </a>' + '      <br/>' + '      X songs' + '      <br/>' + '      X:XX Total Length' + '      <br/>' + '    </p>' + '  </div>' + '</div>';
     return $(template);
 };
-
 var buildAlbumOverlay = function(albumURL) {
     var template =
         '<div class="collection-album-image-overlay">' + '  <div class="collection-overlay-content">' + '    <a class="collection-overlay-button" href="' + albumURL + '">' + '      <i class="fa fa-play"></i>' + '    </a>' + '    &nbsp;' + '    <a class="collection-overlay-button">' + '      <i class="fa fa-plus"></i>' + '    </a>' + '  </div>' + '</div>';
     return $(template);
 };
-
 var updateCollectionView = function() {
     var $collection = $(".collection-container .row");
     $collection.empty();
@@ -613,17 +630,14 @@ var updateCollectionView = function() {
         var $newThumbnail = buildAlbumThumbnail();
         $collection.append($newThumbnail);
     }
-
     var onHover = function(event) {
         $(this).append(buildAlbumOverlay("/album.html"));
     };
     var offHover = function(event) {
         $(this).find('.collection-album-image-overlay').remove();
     };
-
     $collection.find('.collection-album-image-container').hover(onHover, offHover);
 };
-
 if (document.URL.match(/\/collection.html/)) { // This waits until the HTML is fully processed.
     $(document).ready(function() {
         updateCollectionView();
