@@ -452,6 +452,37 @@ if (document.URL.match(/\/album.html/)) {
      }
  ]);
  /******************************************************
+                        FILTERS
+******************************************************/
+  blocJams.filter('timecode', function(){
+   return function(seconds) {
+     seconds = Number.parseFloat(seconds);
+ 
+     // Returned when no time is provided.
+     if (Number.isNaN(seconds)) {
+       return '-:--';
+     }
+ 
+     // make it a whole number
+     var wholeSeconds = Math.floor(seconds);
+ 
+     var minutes = Math.floor(wholeSeconds / 60);
+ 
+     remainingSeconds = wholeSeconds % 60;
+ 
+     var output = minutes + ':';
+ 
+     // zero pad seconds, so 9 seconds should be :09
+     if (remainingSeconds < 10) {
+       output += '0';
+     }
+ 
+     output += remainingSeconds;
+ 
+     return output;
+   }
+ });
+ /******************************************************
                         STATES
 ******************************************************/
 
@@ -460,7 +491,7 @@ if (document.URL.match(/\/album.html/)) {
          $locationProvider.html5Mode(true);
 
          /******************************************************
- Landing Page 
+ Landing Page
 ******************************************************/
 
          $stateProvider.state('landing', {
@@ -470,7 +501,7 @@ if (document.URL.match(/\/album.html/)) {
          });
 
          /******************************************************
- Song Page 
+ Song Page
 ******************************************************/
 
          $stateProvider.state('song', {
@@ -482,7 +513,7 @@ if (document.URL.match(/\/album.html/)) {
 
 
          /******************************************************
- Collection Page 
+ Collection Page
 ******************************************************/
 
          $stateProvider.state('collection', {
@@ -492,7 +523,7 @@ if (document.URL.match(/\/album.html/)) {
          });
 
          /******************************************************
- Album Page 
+ Album Page
 ******************************************************/
 
          $stateProvider.state('album', {
@@ -502,7 +533,7 @@ if (document.URL.match(/\/album.html/)) {
          });
 
          /******************************************************
- Album Page 
+ Album Page
 ******************************************************/
 
          $stateProvider.state('playerBar', {
@@ -522,7 +553,7 @@ if (document.URL.match(/\/album.html/)) {
 ******************************************************/
 
  /******************************************************
- Landing Page 
+ Landing Page
 ******************************************************/
 
  blocJams.controller('Landing.controller', ['$scope',
@@ -560,7 +591,7 @@ if (document.URL.match(/\/album.html/)) {
  ]);
 
  /******************************************************
- Song Page 
+ Song Page
 ******************************************************/
 
  blocJams.controller('Song.controller', ['$scope',
@@ -630,16 +661,21 @@ if (document.URL.match(/\/album.html/)) {
  ]);
 
  /******************************************************
- Song Player 
+ Song Player
 ******************************************************/
 
  blocJams.controller('PlayerBar.controller', ['$scope', 'SongPlayer',
      function($scope, SongPlayer) {
          $scope.songPlayer = SongPlayer;
+         SongPlayer.onTimeUpdate(function(event, time){
+                $scope.$apply(function(){
+                $scope.playTime = time;
+            });
+        });
      }
  ]);
 
- blocJams.service('SongPlayer', function() {
+ blocJams.service('SongPlayer', ['$rootScope', function($rootScope) {
 
      var currentSoundFile = null;
 
@@ -668,6 +704,9 @@ if (document.URL.match(/\/album.html/)) {
          currentSoundFile.setTime(time);
        }
      },
+     onTimeUpdate: function(callback) {
+      return $rootScope.$on('sound:timeupdate', callback);
+    },
          setSong: function(album, song) {
 
              if (currentSoundFile) {
@@ -679,6 +718,10 @@ if (document.URL.match(/\/album.html/)) {
                  formats: ["mp3"],
                  preload: true
              });
+            
+            currentSoundFile.bind('timeupdate', function(e){
+                $rootScope.$broadcast('sound:timeupdate', this.getTime());
+            });
 
              this.play();
 
@@ -703,7 +746,8 @@ if (document.URL.match(/\/album.html/)) {
              this.setSong(this.currentAlbum, song);
          }
      };
- });
+ }]);
+
 });
 
 ;require.register("scripts/collection", function(exports, require, module) {
