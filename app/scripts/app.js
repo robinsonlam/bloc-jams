@@ -124,6 +124,37 @@
      }
  ]);
  /******************************************************
+                        FILTERS
+******************************************************/
+  blocJams.filter('timecode', function(){
+   return function(seconds) {
+     seconds = Number.parseFloat(seconds);
+ 
+     // Returned when no time is provided.
+     if (Number.isNaN(seconds)) {
+       return '-:--';
+     }
+ 
+     // make it a whole number
+     var wholeSeconds = Math.floor(seconds);
+ 
+     var minutes = Math.floor(wholeSeconds / 60);
+ 
+     remainingSeconds = wholeSeconds % 60;
+ 
+     var output = minutes + ':';
+ 
+     // zero pad seconds, so 9 seconds should be :09
+     if (remainingSeconds < 10) {
+       output += '0';
+     }
+ 
+     output += remainingSeconds;
+ 
+     return output;
+   }
+ });
+ /******************************************************
                         STATES
 ******************************************************/
 
@@ -132,7 +163,7 @@
          $locationProvider.html5Mode(true);
 
          /******************************************************
- Landing Page 
+ Landing Page
 ******************************************************/
 
          $stateProvider.state('landing', {
@@ -142,7 +173,7 @@
          });
 
          /******************************************************
- Song Page 
+ Song Page
 ******************************************************/
 
          $stateProvider.state('song', {
@@ -154,7 +185,7 @@
 
 
          /******************************************************
- Collection Page 
+ Collection Page
 ******************************************************/
 
          $stateProvider.state('collection', {
@@ -164,7 +195,7 @@
          });
 
          /******************************************************
- Album Page 
+ Album Page
 ******************************************************/
 
          $stateProvider.state('album', {
@@ -174,7 +205,7 @@
          });
 
          /******************************************************
- Album Page 
+ Album Page
 ******************************************************/
 
          $stateProvider.state('playerBar', {
@@ -194,7 +225,7 @@
 ******************************************************/
 
  /******************************************************
- Landing Page 
+ Landing Page
 ******************************************************/
 
  blocJams.controller('Landing.controller', ['$scope',
@@ -232,7 +263,7 @@
  ]);
 
  /******************************************************
- Song Page 
+ Song Page
 ******************************************************/
 
  blocJams.controller('Song.controller', ['$scope',
@@ -302,16 +333,21 @@
  ]);
 
  /******************************************************
- Song Player 
+ Song Player
 ******************************************************/
 
  blocJams.controller('PlayerBar.controller', ['$scope', 'SongPlayer',
      function($scope, SongPlayer) {
          $scope.songPlayer = SongPlayer;
+         SongPlayer.onTimeUpdate(function(event, time){
+                $scope.$apply(function(){
+                $scope.playTime = time;
+            });
+        });
      }
  ]);
 
- blocJams.service('SongPlayer', function() {
+ blocJams.service('SongPlayer', ['$rootScope', function($rootScope) {
 
      var currentSoundFile = null;
 
@@ -340,6 +376,9 @@
          currentSoundFile.setTime(time);
        }
      },
+     onTimeUpdate: function(callback) {
+      return $rootScope.$on('sound:timeupdate', callback);
+    },
          setSong: function(album, song) {
 
              if (currentSoundFile) {
@@ -351,6 +390,10 @@
                  formats: ["mp3"],
                  preload: true
              });
+            
+            currentSoundFile.bind('timeupdate', function(e){
+                $rootScope.$broadcast('sound:timeupdate', this.getTime());
+            });
 
              this.play();
 
@@ -375,4 +418,4 @@
              this.setSong(this.currentAlbum, song);
          }
      };
- });
+ }]);
