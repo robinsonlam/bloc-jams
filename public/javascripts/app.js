@@ -383,7 +383,6 @@ if (document.URL.match(/\/album.html/)) {
              scope: {
                  onChange: '&'
              },
-             ,
              link: function(scope, element, attributes) {
                  // Returns a number between 0 and 1 to determine where the mouse event happened along the slider bar.
 
